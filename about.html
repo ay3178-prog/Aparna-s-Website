@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>about — aparna</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Space Mono', monospace; color: #1a1a2e; min-height: 100vh; }
+
+    canvas { display: block; position: fixed; top: 0; left: 0; z-index: 0; }
+
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 28px;
+      background: rgba(255, 255, 255, 0.6);
+      backdrop-filter: blur(12px);
+    }
+    nav a { font-size: 14px; color: #1a1a2e; text-decoration: none; font-weight: 700; }
+    nav a:hover { text-decoration: underline; }
+    .nav-links { display: flex; gap: 24px; }
+
+    .page {
+      position: relative; z-index: 10;
+      max-width: 680px; margin: 0 auto; padding: 48px 28px 100px;
+    }
+
+    h1 { font-size: 36px; font-weight: 700; margin-bottom: 32px; }
+
+    .bio-block { margin-bottom: 28px; }
+
+    .bio-label { font-size: 13px; margin-bottom: 10px; }
+
+    .bio-text {
+      font-size: 15px; line-height: 2; font-weight: 400;
+      background: white;
+      padding: 16px 18px;
+    }
+
+    hr { border: none; border-top: 1px solid rgba(26,26,46,0.2); margin: 10px 0 14px; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html">aparna yellamraju</a>
+  <div class="nav-links">
+    <a href="index.html">home</a>
+    <a href="about.html">about</a>
+  </div>
+</nav>
+
+<div class="page">
+  <h1>about me</h1>
+
+  <div class="bio-block">
+    <div class="bio-label">📷 who i am</div>
+    <hr>
+    <p class="bio-text">
+      Hi! My name is Aparna Yellamraju and I am currently pursuing a B.S. in Integrated Design and Media and a minor in Computer Science.
+    </p>
+  </div>
+
+  <div class="bio-block">
+    <div class="bio-label">✈️ when i'm not coding</div>
+    <hr>
+    <p class="bio-text">
+      When I am not on the third floor, you can find me at Pret getting my go-to hot chocolate with almond milk, in Manhattan hosting performances with my a cappella group, filming silly reels, or exploring the Mediterranean, Italian, and Indian restaurants scattered around New York!
+    </p>
+  </div>
+
+  <div class="bio-block">
+    <div class="bio-label">🎨 this site</div>
+    <hr>
+    <p class="bio-text">
+      Three sketches I made while learning p5.js. All pastel, all a little chaotic, all mine.
+    </p>
+  </div>
+
+</div>
+
+<script>
+let space = 120;
+let t = 0;
+let theme = 0;
+
+let emojis = ["🧸","🎀","💖","✨","🌸","🌷","🍓","🧁","😺","🐶","🐰","🐻","🐼","🐥","🦋","🌈"];
+
+let bgs = [
+  [255,235,245],[255,220,235],[255,210,230],[245,240,255],
+  [235,255,240],[235,250,255],[255,245,230],[255,240,220],
+  [230,245,255],[220,240,255],[235,250,245],[245,235,255],
+  [235,245,240],[255,250,220],[230,255,250],[240,240,255]
+];
+
+function setup() {
+  createCanvas(windowWidth, windowHeight);
+  textAlign(CENTER, CENTER);
+  textSize(80);
+  background(255);
+}
+
+function draw() {
+  let bg = bgs[theme];
+  background(bg[0], bg[1], bg[2], 8);
+
+  t += 0.02;
+
+  let e = emojis[theme];
+
+  for (let x = 0; x < width; x += space) {
+    for (let y = 0; y < height; y += space) {
+      let cx = x + space / 2;
+      let cy = y + space / 2;
+
+      let a = t + (x + y) * 0.01;
+      let r = 6 + (sin(t * 2 + (x + y) * 0.02) + 1) * 10;
+
+      let dx = cos(a) * r;
+      let dy = sin(a) * r;
+
+      drawingContext.globalAlpha = 0.06;
+      text(e, cx + dx, cy + dy);
+      drawingContext.globalAlpha = 1.0;
+    }
+  }
+
+  if (frameCount % 180 === 0) {
+    theme = (theme + 1) % emojis.length;
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+</script>
+</body>
+</html>
