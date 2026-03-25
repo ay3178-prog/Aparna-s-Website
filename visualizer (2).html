@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>audio — aparna</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #fdf4ff; overflow: hidden; font-family: 'Space Mono', monospace; }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 10;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 32px;
+      background: rgba(253, 244, 255, 0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 3px solid #1a1a2e;
+    }
+    .nav-links { display: flex; gap: 22px; }
+    .nav-links a { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(26,26,46,0.4); text-decoration: none; }
+    .nav-links a:hover { color: #1a1a2e; }
+    canvas { display: block; }
+
+    .hint {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center; pointer-events: none;
+      font-size: 12px; letter-spacing: 3px; text-transform: uppercase;
+      color: rgba(26, 26, 46, 0.2); line-height: 2.5;
+      transition: opacity 1s;
+    }
+    .controls {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      z-index: 10;
+    }
+    .ctrl-btn {
+      font-family: 'Space Mono', monospace; font-size: 10px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase; padding: 7px 14px;
+      border: 2px solid rgba(26,26,46,0.25); background: rgba(253,244,255,0.88);
+      color: rgba(26,26,46,0.45); cursor: pointer; backdrop-filter: blur(8px);
+    }
+    .ctrl-btn:hover { border-color: #1a1a2e; color: #1a1a2e; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html">aparna yellamraju</a>
+  <div class="nav-links">
+    <a href="../index.html">home</a>
+    <a href="../about.html">about</a>
+  </div>
+</nav>
+
+<div class="hint" id="hint">
+  move your mouse · click to place nodes<br>
+  nodes connect and make sound
+</div>
+
+<div class="controls">
+  <button class="ctrl-btn" onclick="clearNodes()">clear</button>
+</div>
+
+<script>
+// ── audio ─────────────────────────────────────────────────────────────────
+let audioCtx;
+let reverbNode;
+
+let NOTES_HZ = [
+  130.81, 146.83, 164.81, 196.00, 220.00,
+  261.63, 293.66, 329.63, 392.00, 440.00,
+  523.25, 587.33, 659.25, 783.99, 880.00
+];
+
+let ARP_PATTERNS = [
+  [0, 2, 4, 2],
+  [0, 1, 2, 1],
+  [0, 2, 4, 6],
+  [0, 4, 2, 6],
+  [0, 2, 1, 2]
+];
+
+let STEP_LEN = (60.0 / 60.0) / 2.0;
+
+let nodeQueue = [];
+let schedulerRunning = false;
+
+function getAudio() {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return audioCtx;
+}
+
+function getReverb(ac) {
+  if (reverbNode) return reverbNode;
+  let len = ac.sampleRate * 3.2;
+  let buf = ac.createBuffer(2, len, ac.sampleRate);
+  for (let c = 0; c < 2; c++) {
+    let d = buf.getChannelData(c);
+    for (let i = 0; i < len; i++) {
+      d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 1.6);
+    }
+  }
+  let conv = ac.createConvolver();
+  conv.buffer = buf;
+  let wet = ac.createGain();
+  wet.gain.value = 0.55;
+  conv.connect(wet);
+  wet.connect(ac.destination);
+  reverbNode = conv;
+  return reverbNode;
+}
+
+function playSoftNote(ac, freq, vol, when, dur) {
+  let offsets = [0, 0.3];
+  for (let i = 0; i < offsets.length; i++) {
+    let osc  = ac.createOscillator();
+    let env  = ac.createGain();
+    let filt = ac.createBiquadFilter();
+    osc.type = 'sine';
+    osc.frequency.value = freq * (1 + offsets[i] * 0.001);
+    filt.type = 'lowpass';
+    filt.frequency.value = 900;
+    filt.Q.value = 0.7;
+    let v = i === 0 ? vol : vol * 0.4;
+    env.gain.setValueAtTime(0, when);
+    env.gain.linearRampToValueAtTime(v, when + 0.06);
+    env.gain.setValueAtTime(v, when + 0.1);
+    env.gain.exponentialRampToValueAtTime(0.001, when + dur);
+    osc.connect(filt);
+    filt.connect(env);
+    env.connect(ac.destination);
+    env.connect(getReverb(ac));
+    osc.start(when);
+    osc.stop(when + dur + 0.1);
+  }
+}
+
+function startScheduler() {
+  if (schedulerRunning) return;
+  schedulerRunning = true;
+  scheduleLoop();
+}
+
+function scheduleLoop() {
+  if (!audioCtx) { setTimeout(scheduleLoop, 200); return; }
+  let ac = audioCtx;
+  let now = ac.currentTime;
+  let lookahead = 0.15;
+
+  for (let i = 0; i < nodeQueue.length; i++) {
+    let item = nodeQueue[i];
+    while (item.nextTime < now + lookahead) {
+      let pat     = item.node.pattern;
+      let noteIdx = (item.node.rootIdx + pat[item.stepIdx % pat.length]) % NOTES_HZ.length;
+      let freq    = NOTES_HZ[noteIdx];
+      playSoftNote(ac, freq, 0.13, item.nextTime, 1.6);
+      item.stepIdx++;
+      item.nextTime += STEP_LEN;
+    }
+  }
+  setTimeout(scheduleLoop, 60);
+}
+
+function addNodeToScheduler(n) {
+  if (!audioCtx) return;
+  let offset = nodeQueue.length * STEP_LEN * 0.5;
+  nodeQueue.push({ node: n, stepIdx: 0, nextTime: audioCtx.currentTime + 0.1 + offset });
+}
+
+function removeNodeFromScheduler(n) {
+  nodeQueue = nodeQueue.filter(function(item) { return item.node !== n; });
+}
+
+// ── pastel colors per note ─────────────────────────────────────────────────
+let PASTEL_COLORS = [
+  [255,179,209],[255,200,225],[255,220,235],
+  [212,179,255],[230,200,255],[245,220,255],
+  [179,207,255],[200,220,255],[220,235,255],
+  [179,255,212],[200,255,225],[220,255,235],
+  [255,251,179],[255,253,200],[255,254,220]
+];
+
+// ── p5 sketch ──────────────────────────────────────────────────────────────
+let nodes = [];
+let cursorNode;
+let hintHidden = false;
+let navH = 50;
+
+let MAX_NODES    = 36;
+let CONNECT_DIST = 210;
+
+function setup() {
+  navH = document.querySelector('nav').offsetHeight;
+  createCanvas(windowWidth, windowHeight - navH);
+  noStroke();
+
+  cursorNode = makeNode(width / 2, height / 2, false);
+}
+
+function makeNode(x, y, permanent) {
+  let rootIdx = floor(random(NOTES_HZ.length));
+  return {
+    x:        x,
+    y:        y,
+    permanent: permanent,
+    r:        permanent ? random(9, 20) : 12,
+    rootIdx:  rootIdx,
+    freq:     NOTES_HZ[rootIdx],
+    col:      PASTEL_COLORS[rootIdx % PASTEL_COLORS.length],
+    pattern:  ARP_PATTERNS[floor(random(ARP_PATTERNS.length))],
+    energy:   0,
+    seed:     random(1000),
+    vx:       random(-0.28, 0.28),
+    vy:       random(-0.28, 0.28),
+    age:      0,
+    drift:    random(TWO_PI)
+  };
+}
+
+function updateNode(n) {
+  n.age++;
+  n.energy *= 0.92;
+
+  if (n.permanent) {
+    n.vx += cos(n.drift + n.age * 0.009) * 0.011;
+    n.vy += sin(n.drift + n.age * 0.009) * 0.011;
+    n.vx *= 0.976;
+    n.vy *= 0.976;
+    n.x  += n.vx;
+    n.y  += n.vy;
+
+    let m = 28;
+    if (n.x < m)         { n.x = m;         n.vx *= -1; }
+    if (n.x > width - m) { n.x = width - m; n.vx *= -1; }
+    if (n.y < m)         { n.y = m;         n.vy *= -1; }
+    if (n.y > height - m){ n.y = height - m;n.vy *= -1; }
+
+    if (n.age > 40 && n.age % 30 === 0) {
+      n.energy = 0.7;
+    }
+  } else {
+    n.x = mouseX;
+    n.y = mouseY;
+    n.energy = 0.22;
+  }
+}
+
+function drawNode(n) {
+  let r  = n.col[0];
+  let g  = n.col[1];
+  let b  = n.col[2];
+  let sz = n.r * (1 + n.energy * 0.85);
+
+  fill(r, g, b, 14 + n.energy * 36);
+  circle(n.x, n.y, sz * 5.2);
+
+  fill(r, g, b, 42 + n.energy * 55);
+  circle(n.x, n.y, sz * 2.7);
+
+  fill(r, g, b, 220);
+  circle(n.x, n.y, sz);
+
+  fill(min(255, r + 40), min(255, g + 40), min(255, b + 40), 160);
+  circle(n.x, n.y, sz * 0.45);
+}
+
+function draw() {
+  background(253, 244, 255, 26);
+
+  cursorNode.x = mouseX;
+  cursorNode.y = mouseY;
+  updateNode(cursorNode);
+
+  for (let i = 0; i < nodes.length; i++) {
+    updateNode(nodes[i]);
+  }
+
+  // draw edges
+  let all = nodes.concat([cursorNode]);
+
+  for (let i = 0; i < all.length; i++) {
+    for (let j = i + 1; j < all.length; j++) {
+      let a = all[i];
+      let b = all[j];
+      let d = dist(a.x, a.y, b.x, b.y);
+      if (d > CONNECT_DIST) continue;
+
+      let alpha = map(d, 0, CONNECT_DIST, 95, 0);
+      let pulse = (a.energy + b.energy) * 0.5;
+      let r  = (a.col[0] + b.col[0]) / 2;
+      let g  = (a.col[1] + b.col[1]) / 2;
+      let bv = (a.col[2] + b.col[2]) / 2;
+
+      stroke(r, g, bv, alpha + pulse * 55);
+      strokeWeight(0.6 + pulse * 2.2);
+      line(a.x, a.y, b.x, b.y);
+
+      let flow = (frameCount * 0.008 + i * 0.19 + j * 0.07) % 1;
+      noStroke();
+      fill(r, g, bv, alpha * 1.4 + pulse * 40);
+      circle(lerp(a.x, b.x, flow), lerp(a.y, b.y, flow), 2.5 + pulse * 4.5);
+    }
+  }
+
+  noStroke();
+  for (let i = 0; i < nodes.length; i++) {
+    drawNode(nodes[i]);
+  }
+  drawNode(cursorNode);
+}
+
+function mousePressed() {
+  let ac = getAudio();
+  ac.resume();
+  startScheduler();
+
+  if (mouseY < navH) return;
+
+  if (nodes.length >= MAX_NODES) {
+    removeNodeFromScheduler(nodes[0]);
+    nodes.splice(0, 1);
+  }
+
+  let n = makeNode(mouseX, mouseY, true);
+  nodes.push(n);
+  addNodeToScheduler(n);
+
+  playSoftNote(ac, n.freq, 0.15, ac.currentTime, 1.8);
+
+  if (!hintHidden) {
+    document.getElementById('hint').style.opacity = '0';
+    hintHidden = true;
+  }
+}
+
+function windowResized() {
+  navH = document.querySelector('nav').offsetHeight;
+  resizeCanvas(windowWidth, windowHeight - navH);
+}
+
+function clearNodes() {
+  nodes = [];
+  nodeQueue = [];
+}
+</script>
+</body>
+</html>

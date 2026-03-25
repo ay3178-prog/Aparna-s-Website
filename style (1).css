@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap');
+
+:root {
+  --pink:    #ffb3d1;
+  --blue:    #b3cfff;
+  --mint:    #b3ffd4;
+  --peach:   #ffddb3;
+  --lav:     #d4b3ff;
+  --yellow:  #fffbb3;
+  --rose:    #ffc8c8;
+  --sky:     #c8f0ff;
+  --bg:      #fdf6ff;
+  --ink:     #1a1a2e;
+  --muted:   rgba(26,26,46,0.4);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  font-family: 'Space Mono', monospace;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+nav {
+  position: sticky; top:0; z-index:200;
+  display:flex; justify-content:space-between; align-items:center;
+  padding: 14px 32px;
+  background: rgba(253,246,255,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 2px solid rgba(26,26,46,0.08);
+}
+.nav-logo {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px; letter-spacing:2px;
+  color:var(--ink); text-decoration:none;
+}
+.nav-links { display:flex; gap:24px; }
+.nav-links a {
+  font-size:11px; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase;
+  color:var(--muted); text-decoration:none;
+}
+.nav-links a:hover { color:var(--ink); }
+
+.page { max-width:800px; margin:0 auto; padding:52px 28px 100px; }
+
+h1 {
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(48px,9vw,88px);
+  line-height:0.92; color:var(--ink);
+}
+
+footer {
+  border-top:2px solid rgba(26,26,46,0.07);
+  padding:16px 32px; font-size:11px;
+  color:var(--muted); letter-spacing:2px; text-transform:uppercase;
+}
+
+.btn {
+  display:inline-block;
+  font-family:'Space Mono',monospace; font-size:11px;
+  font-weight:700; letter-spacing:2px; text-transform:uppercase;
+  padding:9px 20px; border:2px solid var(--ink);
+  background:white; color:var(--ink); cursor:pointer;
+  text-decoration:none; transition:all 0.12s;
+}
+.btn:hover { background:var(--ink); color:white; }
