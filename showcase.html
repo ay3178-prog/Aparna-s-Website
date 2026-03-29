@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Creative Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0c10;
+      --surface: #111318;
+      --accent: #c8f0d8;
+      --accent2: #f0c8d8;
+      --text: #e8e6e0;
+      --muted: #6b6e7a;
+      --glow: rgba(200, 240, 216, 0.18);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      overflow-x: hidden;
+    }
+
+    /* ── Grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 999; opacity: 0.5;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      padding: 3.5rem 2rem 1.5rem;
+      position: relative;
+    }
+    header .back {
+      position: absolute; top: 2rem; left: 2rem;
+      font-size: 0.75rem; letter-spacing: 0.15em;
+      color: var(--muted); text-decoration: none;
+      transition: color 0.2s;
+    }
+    header .back:hover { color: var(--accent); }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300; font-style: italic;
+      font-size: clamp(2.2rem, 5vw, 4rem);
+      letter-spacing: 0.02em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      margin-top: 0.6rem;
+      font-size: 0.72rem; letter-spacing: 0.2em;
+      color: var(--muted); text-transform: uppercase;
+    }
+
+    /* ── Main layout ── */
+    .stage {
+      max-width: 1100px;
+      margin: 2rem auto 0;
+      padding: 0 1.5rem 4rem;
+      display: grid;
+      grid-template-rows: auto auto;
+      gap: 2rem;
+    }
+
+    /* ── Image container ── */
+    .image-wrap {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(200,240,216,0.08), 0 0 0 1px rgba(255,255,255,0.05);
+      cursor: crosshair;
+    }
+    .image-wrap img {
+      width: 100%; display: block;
+      transition: filter 0.4s;
+    }
+    .image-wrap:hover img { filter: brightness(1.06); }
+
+    /* ── Hotspots ── */
+    .hotspot {
+      position: absolute;
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(200,240,216,0.6);
+      background: rgba(200,240,216,0.12);
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      transition: background 0.25s, transform 0.25s;
+      animation: pulse 2.8s ease-in-out infinite;
+    }
+    .hotspot:hover {
+      background: rgba(200,240,216,0.28);
+      transform: translate(-50%, -50%) scale(1.2);
+      animation: none;
+    }
+    .hotspot::after {
+      content: '+';
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Mono', monospace;
+      font-size: 1rem; color: var(--accent);
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(200,240,216,0.4); }
+      50%       { box-shadow: 0 0 0 10px rgba(200,240,216,0); }
+    }
+
+    /* ── Pop-up cards ── */
+    .popup {
+      position: absolute;
+      background: rgba(15,17,22,0.92);
+      backdrop-filter: blur(16px) saturate(1.4);
+      border: 1px solid rgba(200,240,216,0.18);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      width: 220px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(8px) scale(0.96);
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      z-index: 10;
+      font-size: 0.75rem;
+      line-height: 1.6;
+      color: var(--text);
+    }
+    .popup.active {
+      opacity: 1; transform: translateY(0) scale(1); pointer-events: auto;
+    }
+    .popup .popup-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; font-style: italic;
+      color: var(--accent); margin-bottom: 0.4rem;
+    }
+    .popup .close-btn {
+      float: right; cursor: pointer;
+      color: var(--muted); font-size: 0.8rem;
+      background: none; border: none;
+      margin-left: 0.5rem; line-height: 1;
+    }
+    .popup .close-btn:hover { color: var(--accent2); }
+
+    /* ── Audio player ── */
+    .player-section {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 1.2rem;
+      background: var(--surface);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 14px;
+      padding: 2rem 2rem 1.8rem;
+    }
+    .player-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem; font-style: italic;
+      color: var(--accent2);
+      text-align: center;
+    }
+    .player-label span {
+      display: block; font-family: 'DM Mono', monospace;
+      font-size: 0.68rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    /* Waveform visualizer */
+    #waveform {
+      width: 100%; max-width: 600px; height: 64px;
+      border-radius: 6px; overflow: hidden;
+    }
+
+    /* Controls row */
+    .controls {
+      display: flex; align-items: center; gap: 1.2rem;
+      width: 100%; max-width: 600px;
+    }
+    .play-btn {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none; cursor: pointer; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.18s, box-shadow 0.18s;
+      box-shadow: 0 0 20px rgba(200,240,216,0.2);
+    }
+    .play-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 30px rgba(200,240,216,0.35);
+    }
+    .play-btn svg { fill: #0a0c10; width: 18px; height: 18px; }
+
+    .progress-wrap {
+      flex: 1; display: flex; flex-direction: column; gap: 4px;
+    }
+    .progress-bar-bg {
+      width: 100%; height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px; cursor: pointer; position: relative;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      border-radius: 2px;
+      transition: width 0.1s linear;
+    }
+    .time-row {
+      display: flex; justify-content: space-between;
+      font-size: 0.65rem; color: var(--muted);
+    }
+
+    /* hint */
+    .hint {
+      font-size: 0.67rem; color: var(--muted);
+      letter-spacing: 0.12em; text-align: center;
+      margin-top: -0.5rem;
+    }
+    .hint span { color: var(--accent); }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center; padding: 2rem;
+      font-size: 0.68rem; color: var(--muted); letter-spacing: 0.14em;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 600px) {
+      .popup { width: 180px; font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html" class="back">← back</a>
+    <h1>In Flow</h1>
+    <p class="subtitle">A creative self-portrait &nbsp;·&nbsp; image × sound</p>
+  </header>
+
+  <main class="stage">
+
+    <!-- ── IMAGE + HOTSPOTS ── -->
+    <div class="image-wrap" id="imageWrap">
+      <img src="Gemini_Generated_Image_6wf3zd6wf3zd6wf3.png" alt="A person working at night with headphones, surrounded by glowing sound waves in a city window scene" />
+
+      <!-- Hotspot 1: headphones / music -->
+      <div class="hotspot" style="top:18%;left:72%;" data-popup="popup1"></div>
+      <div class="popup" id="popup1" style="top:24%;left:55%;">
+        <button class="close-btn" onclick="closePopup('popup1')">✕</button>
+        <div class="popup-title">Music is my fuel</div>
+        I made this track with Google's MusicFX — soft, emotional piano that keeps me in the zone when I code and create.
+      </div>
+
+      <!-- Hotspot 2: laptop / coding -->
+      <div class="hotspot" style="top:52%;left:34%;" data-popup="popup2"></div>
+      <div class="popup" id="popup2" style="top:56%;left:16%;">
+        <button class="close-btn" onclick="closePopup('popup2')">✕</button>
+        <div class="popup-title">Building things</div>
+        Late-night sessions with a code editor open, sketching out ideas that start as diagrams and turn into real things.
+      </div>
+
+      <!-- Hotspot 3: city window -->
+      <div class="hotspot" style="top:28%;left:20%;" data-popup="popup3"></div>
+      <div class="popup" id="popup3" style="top:32%;left:4%;">
+        <button class="close-btn" onclick="closePopup('popup3')">✕</button>
+        <div class="popup-title">City energy</div>
+        The chaos outside the window is part of the inspiration — I work best when the world is alive around me.
+      </div>
+
+      <!-- Hotspot 4: glowing waves -->
+      <div class="hotspot" style="top:65%;left:82%;" data-popup="popup4"></div>
+      <div class="popup" id="popup4" style="top:68%;left:54%;">
+        <button class="close-btn" onclick="closePopup('popup4')">✕</button>
+        <div class="popup-title">Sound as texture</div>
+        Those swirling waves are what it feels like when a great track wraps around your thoughts. That's the mood I chased with this song.
+      </div>
+
+    </div>
+
+    <!-- ── AUDIO PLAYER ── -->
+    <div class="player-section">
+      <div class="player-label">
+        Soft Emotional Piano
+        <span>created with Google MusicFX</span>
+      </div>
+
+      <canvas id="waveform"></canvas>
+
+      <div class="controls">
+        <button class="play-btn" id="playBtn" aria-label="Play / Pause">
+          <!-- Play icon -->
+          <svg id="iconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          <!-- Pause icon (hidden) -->
+          <svg id="iconPause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+
+        <div class="progress-wrap">
+          <div class="progress-bar-bg" id="progressBg">
+            <div class="progress-bar-fill" id="progressFill"></div>
+          </div>
+          <div class="time-row">
+            <span id="timeCurrent">0:00</span>
+            <span id="timeDuration">–:––</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="hint">Click the <span>+</span> dots on the image to explore</p>
+    </div>
+
+  </main>
+
+  <footer>made with Gemini &amp; MusicFX &nbsp;·&nbsp; Google AI tools showcase</footer>
+
+  <!-- Hidden audio element -->
+  <audio id="audio" src="Music_fx_soft_emotional_piano_music_inspired__1_.wav" preload="auto"></audio>
+
+  <script>
+    /* ── HOTSPOT POPUPS ── */
+    document.querySelectorAll('.hotspot').forEach(dot => {
+      dot.addEventListener('click', e => {
+        e.stopPropagation();
+        const id = dot.dataset.popup;
+        // close others
+        document.querySelectorAll('.popup').forEach(p => {
+          if (p.id !== id) p.classList.remove('active');
+        });
+        document.getElementById(id).classList.toggle('active');
+      });
+    });
+    document.getElementById('imageWrap').addEventListener('click', () => {
+      document.querySelectorAll('.popup').forEach(p => p.classList.remove('active'));
+    });
+    function closePopup(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    /* ── AUDIO PLAYER ── */
+    const audio       = document.getElementById('audio');
+    const playBtn     = document.getElementById('playBtn');
+    const iconPlay    = document.getElementById('iconPlay');
+    const iconPause   = document.getElementById('iconPause');
+    const progressFill = document.getElementById('progressFill');
+    const progressBg  = document.getElementById('progressBg');
+    const timeCurrent = document.getElementById('timeCurrent');
+    const timeDuration = document.getElementById('timeDuration');
+
+    function fmt(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60).toString().padStart(2, '0');
+      return `${m}:${sec}`;
+    }
+
+    playBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        iconPlay.style.display = 'none';
+        iconPause.style.display = '';
+      } else {
+        audio.pause();
+        iconPlay.style.display = '';
+        iconPause.style.display = 'none';
+      }
+    });
+
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.duration) return;
+      const pct = (audio.currentTime / audio.duration) * 100;
+      progressFill.style.width = pct + '%';
+      timeCurrent.textContent = fmt(audio.currentTime);
+    });
+
+    audio.addEventListener('loadedmetadata', () => {
+      timeDuration.textContent = fmt(audio.duration);
+    });
+
+    audio.addEventListener('ended', () => {
+      iconPlay.style.display = '';
+      iconPause.style.display = 'none';
+      progressFill.style.width = '0%';
+      timeCurrent.textContent = '0:00';
+    });
+
+    progressBg.addEventListener('click', e => {
+      const rect = progressBg.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      audio.currentTime = pct * audio.duration;
+    });
+
+    /* ── WAVEFORM VISUALIZER ── */
+    const canvas = document.getElementById('waveform');
+    const ctx    = canvas.getContext('2d');
+    let analyser, source, animFrame;
+    let audioCtx;
+
+    function initVisualizer() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      source = audioCtx.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(audioCtx.destination);
+      drawWave();
+    }
+
+    function drawWave() {
+      const W = canvas.offsetWidth;
+      const H = canvas.offsetHeight;
+      canvas.width = W; canvas.height = H;
+      const bufLen = analyser.frequencyBinCount;
+      const data   = new Uint8Array(bufLen);
+
+      function render() {
+        animFrame = requestAnimationFrame(render);
+        analyser.getByteFrequencyData(data);
+        ctx.clearRect(0, 0, W, H);
+
+        const barW = (W / bufLen) * 2.2;
+        let x = 0;
+        for (let i = 0; i < bufLen; i++) {
+          const val = data[i] / 255;
+          const h   = val * H;
+          // gradient bar
+          const grad = ctx.createLinearGradient(0, H - h, 0, H);
+          grad.addColorStop(0, 'rgba(200,240,216,0.9)');
+          grad.addColorStop(1, 'rgba(240,200,216,0.3)');
+          ctx.fillStyle = grad;
+          ctx.fillRect(x, H - h, barW - 1, h);
+          x += barW + 1;
+        }
+      }
+      render();
+    }
+
+    // Draw idle static bars before play
+    (function idleWave() {
+      const W = canvas.offsetWidth || 600;
+      const H = canvas.offsetHeight || 64;
+      canvas.width = W; canvas.height = H;
+      const bars = 60;
+      const barW = W / bars - 1;
+      for (let i = 0; i < bars; i++) {
+        const h = Math.random() * H * 0.25 + 4;
+        ctx.fillStyle = 'rgba(200,240,216,0.15)';
+        ctx.fillRect(i * (barW + 1), H - h, barW, h);
+      }
+    })();
+
+    audio.addEventListener('play', initVisualizer);
+  </script>
+
+</body>
+</html>
