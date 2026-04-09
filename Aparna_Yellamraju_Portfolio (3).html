@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aparna Yellamraju — Portfolio</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0A0A0F; --border: #1E1E2E;
+    --accent: #7B6CFF; --accent2: #FF6C9D; --accent3: #6CFFDA;
+    --text: #E8E8F0; --muted: #6B6B8A; --card: #13131C;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Space Grotesk', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 18px 48px; display: flex; justify-content: space-between; align-items: center;
+    background: rgba(10,10,15,0.9); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-name { font-family: 'Space Mono', monospace; font-size: 12px; color: var(--accent); letter-spacing: 1px; }
+  .nav-links { display: flex; gap: 28px; list-style: none; }
+  .nav-links a { color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+    padding: 120px 48px 80px; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -200px; right: -200px; width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(123,108,255,0.12) 0%, transparent 70%); pointer-events: none;
+  }
+  .hero::after {
+    content: ''; position: absolute; bottom: -100px; left: -100px; width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(108,255,218,0.07) 0%, transparent 70%); pointer-events: none;
+  }
+  .hero-tag { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; }
+  .hero h1 { font-size: clamp(46px, 7vw, 84px); font-weight: 700; line-height: 1.0; letter-spacing: -2px; margin-bottom: 24px; max-width: 900px; }
+  .hero h1 .a1 { color: var(--accent); }
+  .hero h1 .a2 { color: var(--accent3); }
+  .hero-sub { font-size: 17px; color: var(--muted); line-height: 1.7; max-width: 560px; margin-bottom: 40px; }
+  .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+
+  .btn { padding: 11px 22px; border-radius: 6px; font-size: 13px; font-weight: 600; letter-spacing: 0.3px; text-decoration: none; transition: all 0.2s; font-family: 'Space Grotesk', sans-serif; display: inline-block; }
+  .btn-p { background: var(--accent); color: white; }
+  .btn-p:hover { background: #6B5CEE; transform: translateY(-1px); }
+  .btn-g { border: 1px solid var(--border); color: var(--muted); background: transparent; }
+  .btn-g:hover { border-color: var(--accent); color: var(--text); }
+
+  /* SECTION */
+  .wrap { padding: 88px 48px; max-width: 1100px; margin: 0 auto; }
+  .wrap.notop { padding-top: 0; }
+  .sec-label { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 10px; }
+  .sec-title { font-size: 34px; font-weight: 700; letter-spacing: -1px; margin-bottom: 40px; }
+
+  /* TAGS */
+  .tags { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
+  .tag { font-family: 'Space Mono', monospace; font-size: 10px; padding: 3px 9px; border-radius: 4px; }
+  .tp { background: rgba(123,108,255,0.15); color: var(--accent);  border: 1px solid rgba(123,108,255,0.3); }
+  .tt { background: rgba(108,255,218,0.1);  color: var(--accent3); border: 1px solid rgba(108,255,218,0.25); }
+  .tk { background: rgba(255,108,157,0.1);  color: var(--accent2); border: 1px solid rgba(255,108,157,0.25); }
+  .tg { background: rgba(255,255,255,0.05); color: var(--muted);   border: 1px solid var(--border); }
+
+  /* CARDS */
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color 0.2s, transform 0.2s; margin-bottom: 20px; }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card-2col { display: grid; grid-template-columns: 1fr 1fr; }
+  .card-body { padding: 28px 32px; display: flex; flex-direction: column; justify-content: center; }
+  .card-title { font-size: 19px; font-weight: 700; letter-spacing: -0.4px; margin-bottom: 10px; }
+  .card-desc { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 18px; }
+  .card-link { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--accent); text-decoration: none; letter-spacing: 0.4px; transition: letter-spacing 0.2s; display: inline-block; }
+  .card-link:hover { letter-spacing: 1px; }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .card-sm .card-body { padding: 20px 24px; }
+  .card-sm .card-title { font-size: 16px; }
+
+  /* YOUTUBE CLICK-TO-PLAY */
+  .yt-wrap {
+    position: relative; background: #000; cursor: pointer;
+    overflow: hidden;
+  }
+  .card-2col .yt-wrap { min-height: 300px; }
+  .card-sm .yt-wrap { aspect-ratio: 16/9; }
+
+  .yt-thumb {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+    transition: opacity 0.3s;
+  }
+  .card-2col .yt-thumb { position: absolute; inset: 0; height: 100%; }
+
+  .yt-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(123,108,255,0.25), rgba(0,0,0,0.4));
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .yt-wrap:hover .yt-overlay { background: linear-gradient(135deg, rgba(123,108,255,0.15), rgba(0,0,0,0.2)); }
+
+  .play-btn {
+    width: 64px; height: 64px; background: rgba(255,255,255,0.95); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+  .yt-wrap:hover .play-btn { transform: scale(1.08); background: white; }
+  .play-btn svg { width: 26px; height: 26px; fill: #1A1A2E; margin-left: 4px; }
+
+  .yt-iframe-wrap { display: none; }
+
+  /* LIVE SKETCHES */
+  .sketches-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .sketch-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color 0.2s; }
+  .sketch-card:hover { border-color: var(--accent3); }
+  .sketch-header { padding: 14px 20px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .sketch-title { font-size: 13px; font-weight: 600; }
+  .sketch-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .live-badge { font-family: 'Space Mono', monospace; font-size: 9px; color: var(--accent3); border: 1px solid rgba(108,255,218,0.3); padding: 2px 7px; border-radius: 4px; letter-spacing: 1px; }
+  .sketch-embed { width: 100%; height: 340px; border: none; display: block; background: #000; }
+
+  /* DESIGN */
+  .design-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .design-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 24px 28px; transition: border-color 0.2s; text-decoration: none; display: block; }
+  .design-card:hover { border-color: var(--accent2); }
+  .design-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--accent2); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .design-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+  .design-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* SKILLS */
+  .skills-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .skill-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+  .skill-icon { font-size: 22px; margin-bottom: 10px; }
+  .skill-name { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .skill-list { font-size: 13px; color: var(--muted); line-height: 1.75; }
+
+  /* CONTACT */
+  .contact-wrap { text-align: center; padding: 88px 48px; border-top: 1px solid var(--border); }
+  .contact-wrap h2 { font-size: 44px; font-weight: 700; letter-spacing: -2px; margin-bottom: 14px; }
+  .contact-wrap p { font-size: 16px; color: var(--muted); margin-bottom: 32px; }
+  .contact-links { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+
+  footer { text-align: center; padding: 22px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); font-family: 'Space Mono', monospace; }
+
+  @media (max-width: 780px) {
+    nav { padding: 14px 20px; }
+    .hero, .wrap { padding-left: 20px; padding-right: 20px; }
+    .card-2col, .row-2, .sketches-grid, .design-grid, .skills-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .sketch-embed { height: 260px; }
+    .card-2col .yt-wrap { min-height: 220px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-name">APARNA YELLAMRAJU</div>
+  <ul class="nav-links">
+    <li><a href="#td">TouchDesigner</a></li>
+    <li><a href="#sketches">Live Sketches</a></li>
+    <li><a href="#design">Design</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Creative Technologist &amp; Interactive Designer</div>
+  <h1>Building things that<br><span class="a1">move</span>, respond,<br>and <span class="a2">connect.</span></h1>
+  <p class="hero-sub">Designer, creative technologist, and NYU Integrated Design &amp; Media student who loves Figma-ing, brainstorming, and turning ideas into experiences that stretch both imagination and skill. When I'm not building interactive systems in TouchDesigner or writing generative code in p5.js, I'm singing with NY Masti, thinking a few moves ahead on the chess board, or chasing ice cream trucks in New York — even when it's freezing.</p>
+  <div class="hero-btns">
+    <a href="#td" class="btn btn-p">See the work</a>
+    <a href="https://www.aparnayellamraju.com" target="_blank" class="btn btn-g">Design Portfolio</a>
+    <a href="https://github.com/ay3178-prog/Aparna-s-Website" target="_blank" class="btn btn-g">GitHub</a>
+  </div>
+</div>
+
+<!-- TOUCHDESIGNER -->
+<div class="wrap" id="td">
+  <div class="sec-label">Interactive Systems</div>
+  <div class="sec-title">TouchDesigner &amp; Physical Computing</div>
+
+  <!-- Featured video 1 -->
+  <div class="card card-2col">
+    <div class="yt-wrap" data-id="kRVYit8Kteg">
+      <img class="yt-thumb" src="https://img.youtube.com/vi/kRVYit8Kteg/maxresdefault.jpg" alt="Run Arduino Installation" loading="lazy">
+      <div class="yt-overlay">
+        <div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+      </div>
+      <div class="yt-iframe-wrap"></div>
+    </div>
+    <div class="card-body">
+      <div class="tags">
+        <span class="tag tp">TouchDesigner</span>
+        <span class="tag tt">Arduino</span>
+        <span class="tag tg">Physical Computing</span>
+        <span class="tag tg">Generative 3D</span>
+      </div>
+      <div class="card-title">Run — Arduino Joystick + TouchDesigner Installation</div>
+      <p class="card-desc">Reimagined the arcade game Run by replacing the keyboard with an Arduino joystick controller. Live sensor data streams into TouchDesigner, generating a real-time 3D visual tunnel that responds dynamically to every movement. A complete physical computing pipeline from hardware wiring and serial communication to generative visual output.</p>
+      <a href="https://www.youtube.com/watch?v=kRVYit8Kteg" target="_blank" class="card-link">Watch on YouTube &rarr;</a>
+    </div>
+  </div>
+
+  <div class="row-2">
+    <!-- Video 2 -->
+    <div class="card card-sm">
+      <div class="yt-wrap" data-id="0Xk-WpQJUk4">
+        <img class="yt-thumb" src="https://img.youtube.com/vi/0Xk-WpQJUk4/maxresdefault.jpg" alt="Body Tracking Visualizer" loading="lazy">
+        <div class="yt-overlay"><div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <div class="yt-iframe-wrap"></div>
+      </div>
+      <div class="card-body">
+        <div class="tags"><span class="tag tp">TouchDesigner</span><span class="tag tt">Max 9</span><span class="tag tt">Motion Tracking</span><span class="tag tg">Generative Color</span></div>
+        <div class="card-title">Body Tracking Color Visualizer</div>
+        <p class="card-desc">Real-time generative system built in TouchDesigner and Max 9 that maps live body movement to dynamic color output — every gesture becomes a living visual composition.</p>
+        <a href="https://www.youtube.com/watch?v=0Xk-WpQJUk4" target="_blank" class="card-link">Watch &rarr;</a>
+      </div>
+    </div>
+
+    <!-- Video 3 -->
+    <div class="card card-sm">
+      <div class="yt-wrap" data-id="IUG-I-yJxW8">
+        <img class="yt-thumb" src="https://img.youtube.com/vi/IUG-I-yJxW8/maxresdefault.jpg" alt="Sound Reactive System" loading="lazy">
+        <div class="yt-overlay"><div class="play-btn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div>
+        <div class="yt-iframe-wrap"></div>
+      </div>
+      <div class="card-body">
+        <div class="tags"><span class="tag tp">TouchDesigner</span><span class="tag tk">Audio-Reactive</span><span class="tag tg">New Media Art</span></div>
+        <div class="card-title">Sound-Reactive Object System</div>
+        <p class="card-desc">Objects move and respond to sounds generated by mouse movement — exploring the feedback loop between human gesture, sound, and generative image. Rooted in the tradition of early new media artists like David Rokeby.</p>
+        <a href="https://www.youtube.com/watch?v=IUG-I-yJxW8" target="_blank" class="card-link">Watch &rarr;</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE P5 SKETCHES -->
+<div class="wrap notop" id="sketches">
+  <div class="sec-label">Creative Coding</div>
+  <div class="sec-title">Live p5.js Sketches — try them</div>
+
+  <div class="sketches-grid">
+    <div class="sketch-card">
+      <div class="sketch-header">
+        <div><div class="sketch-title">Node Sound Visualizer</div><div class="sketch-desc">Move mouse · click to place nodes · they connect and make sound</div></div>
+        <span class="live-badge">LIVE</span>
+      </div>
+      <iframe class="sketch-embed" src="https://ay3178-prog.github.io/Aparna-s-Website/visualizer.html" loading="lazy"></iframe>
+    </div>
+
+    <div class="sketch-card">
+      <div class="sketch-header">
+        <div><div class="sketch-title">Webcam Sketch</div><div class="sketch-desc">Camera-based p5.js interaction</div></div>
+        <span class="live-badge">LIVE</span>
+      </div>
+      <iframe class="sketch-embed" src="https://ay3178-prog.github.io/Aparna-s-Website/camera.html" loading="lazy"></iframe>
+    </div>
+
+    <div class="sketch-card">
+      <div class="sketch-header">
+        <div><div class="sketch-title">Emoji Translator</div><div class="sketch-desc">Pick emojis, get a translation</div></div>
+        <span class="live-badge">LIVE</span>
+      </div>
+      <iframe class="sketch-embed" src="https://ay3178-prog.github.io/Aparna-s-Website/translator.html" loading="lazy"></iframe>
+    </div>
+
+    <div class="sketch-card">
+      <div class="sketch-header">
+        <div><div class="sketch-title">In Flow — Creative Showcase</div><div class="sketch-desc">Image × sound self-portrait with interactive hotspots</div></div>
+        <span class="live-badge">LIVE</span>
+      </div>
+      <iframe class="sketch-embed" src="https://ay3178-prog.github.io/Aparna-s-Website/showcase.html" loading="lazy"></iframe>
+    </div>
+  </div>
+</div>
+
+<!-- DESIGN -->
+<div class="wrap notop" id="design">
+  <div class="sec-label">Product Design</div>
+  <div class="sec-title">Design Portfolio</div>
+  <div class="design-grid">
+    <a href="https://www.aparnayellamraju.com/reborn" target="_blank" class="design-card">
+      <div class="design-label">Digital Art App</div>
+      <div class="design-title">Reborn</div>
+      <div class="design-desc">A digital art app that encourages users to reframe creative obstacles as strengths. End-to-end product design.</div>
+    </a>
+    <a href="https://www.aparnayellamraju.com/human-algorithm" target="_blank" class="design-card">
+      <div class="design-label">Poster + Mobile App</div>
+      <div class="design-title">Human Algorithm</div>
+      <div class="design-desc">Imagined conference branding for Human Algorithm x TED Talks. Visual identity, poster design, and mobile app UI.</div>
+    </a>
+    <a href="https://www.aparnayellamraju.com/lumix" target="_blank" class="design-card">
+      <div class="design-label">AI Interaction Design</div>
+      <div class="design-title">Lumix</div>
+      <div class="design-desc">An AI light system that activates with voice — interaction design and product concept for ambient, voice-driven environments.</div>
+    </a>
+    <a href="https://www.aparnayellamraju.com/whisper" target="_blank" class="design-card">
+      <div class="design-label">Experiential Design</div>
+      <div class="design-title">Whisper</div>
+      <div class="design-desc">Regulate fears of darkness by facing them — an experiential piece exploring sound, space, and emotional response.</div>
+    </a>
+  </div>
+</div>
+
+<!-- SKILLS -->
+<div class="wrap notop">
+  <div class="sec-label">Capabilities</div>
+  <div class="sec-title">Tools &amp; Skills</div>
+  <div class="skills-grid">
+    <div class="skill-card">
+      <div class="skill-icon">⚡</div>
+      <div class="skill-name">Interactive Systems</div>
+      <div class="skill-list">TouchDesigner<br>Arduino &amp; physical computing<br>Sensor &amp; joystick integration<br>Serial communication<br>Real-time audio-visual</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">✦</div>
+      <div class="skill-name">Creative Coding</div>
+      <div class="skill-list">p5.js<br>JavaScript / HTML / CSS<br>Python<br>Generative systems<br>Webcam &amp; audio input</div>
+    </div>
+    <div class="skill-card">
+      <div class="skill-icon">◈</div>
+      <div class="skill-name">Design &amp; Production</div>
+      <div class="skill-list">Figma (wireframing, prototyping)<br>Adobe Illustrator, Photoshop<br>InDesign, Premiere Pro<br>Canva, Wix Studio<br>UX research &amp; content strategy</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="contact-wrap" id="contact">
+  <h2>Let's build something.</h2>
+  <p>Open to creative technology roles, installations, and collaborations — based in NYC.</p>
+  <div class="contact-links">
+    <a href="mailto:aparnayellamraju4@gmail.com" class="btn btn-p">aparnayellamraju4@gmail.com</a>
+    <a href="https://linkedin.com/in/aparnayellamraju" target="_blank" class="btn btn-g">LinkedIn</a>
+    <a href="https://github.com/ay3178-prog/Aparna-s-Website" target="_blank" class="btn btn-g">GitHub</a>
+    <a href="https://www.aparnayellamraju.com" target="_blank" class="btn btn-g">Design Portfolio</a>
+  </div>
+</div>
+
+<footer>Aparna Yellamraju &nbsp;·&nbsp; NYU Tandon Integrated Design &amp; Media &nbsp;·&nbsp; New York, NY</footer>
+
+<script>
+  // Click play button or thumbnail -> open YouTube in new tab
+  document.querySelectorAll('.yt-wrap').forEach(function(wrap) {
+    wrap.addEventListener('click', function() {
+      var id = wrap.getAttribute('data-id');
+      window.open('https://www.youtube.com/watch?v=' + id, '_blank');
+    });
+  });
+</script>
+</body>
+</html>
